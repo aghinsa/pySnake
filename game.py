@@ -61,9 +61,7 @@ class Game:
             self.player.length = self.player.length+1
             self.player.eat(food_pos)
             step = self.food.step
-            nx=randint(2,10)*step
-            ny=randint(2,10)*step
-            self.food.position=(nx,ny)
+            self.spawn_food()
 
         #check collision with self
         for _pos in zip(self.player.x[1:],self.player.y[2:]) :
