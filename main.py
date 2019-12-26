@@ -1,8 +1,8 @@
-from window import Window,WindowConfig
+from game import Game,GameConfig
 from assets import Snake,Food
 
 
-cfg = WindowConfig(width = 800,
+cfg = GameConfig(width = 800,
                     height = 600,
                     player = Snake,
                     food = Food,
@@ -11,5 +11,5 @@ cfg = WindowConfig(width = 800,
                     )
 
 if __name__ == "__main__":
-    game = Window(cfg)
-    game.on_execute()
+    snake_game = Game(cfg)
+    snake_game.on_execute()

@@ -7,7 +7,7 @@ from typing import Any,Tuple
 
 
 @dataclass
-class WindowConfig:
+class GameConfig:
     height : int 
     width : int 
     player : Any
@@ -15,8 +15,8 @@ class WindowConfig:
     player_size : Tuple[int]
     food_size : Tuple[int]
 
-class Window:
-    def __init__(self,config:WindowConfig)->None:
+class Game:
+    def __init__(self,config:GameConfig)->None:
         self.config = config
         self.player = self.config.player(10)
         self._running = True
