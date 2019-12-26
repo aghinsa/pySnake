@@ -14,6 +14,7 @@ class GameConfig:
     food : Any
     player_size : Tuple[int]
     food_size : Tuple[int]
+    render : bool = True
 
 class Game:
     def __init__(self,config:GameConfig)->None:
@@ -22,6 +23,10 @@ class Game:
         self.player = self.config.player(5,self.window_size)
         self._running = True
         self.food = self.config.food(5,5) # setting init position
+
+    def reset(self):
+        self.player.reset()
+        self.on_loop()
 
     def on_init(self):
         pygame.init()
@@ -35,9 +40,6 @@ class Game:
         
         self.food_img = pygame.Surface( self.config.food_size )
 
-    def on_event(self,event):
-        if event.type == QUIT:
-            self._running=False
     
     def spawn_food(self):
         step = self.food.step
@@ -48,6 +50,16 @@ class Game:
             ny=randint(2,10)*step
         self.food.position=(nx,ny)
 
+    @property
+    def window(self):
+        return self.display
+    
+    @property
+    def score(self):
+        return self.player.length
+    @property
+    def done(self):
+        return not self._running
 
     def on_loop(self):
         self.player.update()
@@ -71,7 +83,7 @@ class Game:
            
 
             if( head.colliderect(_pos) ):
-                print(f"Game Over!!\nScore : {self.player.length}")
+                print(f"Game Over!!\nScore : {self.score}")
                 exit(0)
 
     def on_render(self):
@@ -79,38 +91,20 @@ class Game:
         self.player.draw(self.display,self.config.player_size)
         self.food.draw(self.display,self.config.food_size)
         pygame.display.flip()
+        
 
     def on_cleanup(self):
         pygame.quit()
 
-    def on_execute(self):
-        if (self.on_init() == False):
-            self._running = False
+    def take_action(self,act):
+        if(act=='UP'):
+            self.player.moveUp() 
+        if(act=='DOWN'):
+            self.player.moveDown()  
+        if(act=='LEFT'):
+            self.player.moveLeft() 
+        if(act=='RIGHT'):
+            self.player.moveRight()
 
-        while(self._running):
-            pygame.event.pump()
-            keys = pygame.key.get_pressed()
-
-            if(keys[K_RIGHT]):
-                self.player.moveRight()
-            
-            if(keys[K_LEFT]):
-                self.player.moveLeft() 
-            
-            if(keys[K_UP]):
-                self.player.moveUp() 
-            
-            if(keys[K_DOWN]):
-                self.player.moveDown() 
-            
-            if(keys[K_ESCAPE]):
-                self._running=False
-
-            self.on_loop()
-            self.on_render()
-            time.sleep(50/1000.0)
-
-        print("Exiting")
-        self.on_cleanup() 
 
 

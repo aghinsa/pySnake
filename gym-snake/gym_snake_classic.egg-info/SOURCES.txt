@@ -1,0 +1,6 @@
+setup.py
+gym_snake_classic.egg-info/PKG-INFO
+gym_snake_classic.egg-info/SOURCES.txt
+gym_snake_classic.egg-info/dependency_links.txt
+gym_snake_classic.egg-info/requires.txt
+gym_snake_classic.egg-info/top_level.txt

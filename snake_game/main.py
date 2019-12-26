@@ -7,9 +7,9 @@ cfg = GameConfig(width = 800,
                     player = Snake,
                     food = Food,
                     player_size = (20,20),
-                    food_size = (20,20)
+                    food_size = (20,20),
+                    render = True
                     )
-
+SNAKE_GAME = Game(cfg)
 if __name__ == "__main__":
-    snake_game = Game(cfg)
-    snake_game.on_execute()
+    SNAKE_GAME.on_execute()
