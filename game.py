@@ -4,7 +4,7 @@ import time
 from pygame.locals import *
 from dataclasses import dataclass
 from typing import Any,Tuple
-
+from random import randint
 
 @dataclass
 class GameConfig:
@@ -18,7 +18,7 @@ class GameConfig:
 class Game:
     def __init__(self,config:GameConfig)->None:
         self.config = config
-        self.player = self.config.player(10)
+        self.player = self.config.player(20)
         self._running = True
         self.window_size = (self.config.width,self.config.height)
         self.food = self.config.food(5,5) # setting init position
@@ -41,7 +41,32 @@ class Game:
     
     def on_loop(self):
         self.player.update()
-    
+
+        # check collison with food
+        head = self.snake_body.get_rect(topleft=self.player.position)
+        food_pos = self.food_img.get_rect(topleft=self.food.position)
+        
+        # To do add modulo window size
+        if( head.colliderect(food_pos) ):
+            self.player.length = self.player.length+1
+            self.player.eat(food_pos)
+            step = self.food.step
+            nx=randint(2,10)*step
+            ny=randint(2,10)*step
+            self.food.position=(nx,ny)
+
+        #check collision with self
+        for _pos in zip(self.player.x[1:],self.player.y[2:]) :
+            head = pygame.Rect(self.player.position,(1,1))
+            _pos = pygame.Rect(_pos,(1,1))
+
+            # print(f"Head : {head}")
+            # print(f"pos : {_pos}")
+
+            if( head.colliderect(_pos) ):
+                print(f"Game Over!!\nScore : {self.player.length}")
+                exit(0)
+
     def on_render(self):
         self.display.fill((255,255,255))
         self.player.draw(self.display,self.config.player_size)

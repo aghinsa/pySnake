@@ -7,7 +7,7 @@ cfg = GameConfig(width = 800,
                     player = Snake,
                     food = Food,
                     player_size = (20,20),
-                    food_size = (18,18)
+                    food_size = (20,20)
                     )
 
 if __name__ == "__main__":
