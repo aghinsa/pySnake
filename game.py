@@ -18,9 +18,9 @@ class GameConfig:
 class Game:
     def __init__(self,config:GameConfig)->None:
         self.config = config
-        self.player = self.config.player(20)
-        self._running = True
         self.window_size = (self.config.width,self.config.height)
+        self.player = self.config.player(5,self.window_size)
+        self._running = True
         self.food = self.config.food(5,5) # setting init position
 
     def on_init(self):
@@ -39,6 +39,16 @@ class Game:
         if event.type == QUIT:
             self._running=False
     
+    def spawn_food(self):
+        step = self.food.step
+        nx=randint(2,10)*step
+        ny=randint(2,10)*step
+        while((nx,ny) in zip(self.player.x,self.player.y)):
+            nx=randint(2,10)*step
+            ny=randint(2,10)*step
+        self.food.position=(nx,ny)
+
+
     def on_loop(self):
         self.player.update()
 
@@ -46,7 +56,7 @@ class Game:
         head = self.snake_body.get_rect(topleft=self.player.position)
         food_pos = self.food_img.get_rect(topleft=self.food.position)
         
-        # To do add modulo window size
+        
         if( head.colliderect(food_pos) ):
             self.player.length = self.player.length+1
             self.player.eat(food_pos)
@@ -60,8 +70,7 @@ class Game:
             head = pygame.Rect(self.player.position,(1,1))
             _pos = pygame.Rect(_pos,(1,1))
 
-            # print(f"Head : {head}")
-            # print(f"pos : {_pos}")
+           
 
             if( head.colliderect(_pos) ):
                 print(f"Game Over!!\nScore : {self.player.length}")

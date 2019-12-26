@@ -9,8 +9,9 @@ class Snake:
     update_count = 0
     update_count_max = 1
 
-    def __init__(self,length):
+    def __init__(self,length,window_size):
         self.length = length
+        self.window_size = window_size
         for _ in range(length):
             self.x.append(0)
             self.y.append(0)
@@ -34,10 +35,10 @@ class Snake:
             self.y[0] -= self.step
         elif self.direction == 3:
             self.y[0] += self.step
-        else:
-            raise Exception
+        
+        self.x[0] %= self.window_size[0]
+        self.y[0] %= self.window_size[1]
 
-            # self.update_count = 0
 
     def moveRight(self):
         self.direction = 0
@@ -56,16 +57,18 @@ class Snake:
         return(self.x[0],self.y[0])
     
     def draw(self,surface,snake_size):
-        for i in range(self.length):
-            try:
+        pygame.draw.rect(surface,(180,160,255), 
+                        pygame.Rect(
+                            (self.x[0],self.y[0]),
+                            snake_size)
+                         )
+        for i in range(1,self.length):
                 pygame.draw.rect(surface,(51,153,255), 
                         pygame.Rect(
                             (self.x[i],self.y[i]),
                             snake_size)
                          )
-            except IndexError:
-                print(f"Index [{i}] out of bounds for length {len(self.x)}")
-                raise
+            
 
     def eat(self,pos):
         self.x.insert(0,pos[0])
