@@ -1,14 +1,17 @@
 import os
 import gym
+import configs
 import pygame
-from PIL import Image
 import numpy as np
-from matplotlib.image import imread
-from gym import error, spaces, utils
-from gym.utils import seeding
 
-from gym_snake_classic.envs.src.game import Game,GameConfig
+
+from gym import spaces
+from gym.utils import seeding
+from matplotlib.image import imread
 from gym_snake_classic.envs.src.assets import Snake,Food
+from gym_snake_classic.envs.src.game import Game,GameConfig
+
+
 
 class SnakeClassicEnv(gym.Env):
     metadata = {'render.modes':['human']}
@@ -23,13 +26,13 @@ class SnakeClassicEnv(gym.Env):
 
     def __init__(self):
         self.temp_filename='_temp_window.jpg'
-        width,height = (800,600)
+        width,height = (400,300)
         self.action_space = spaces.Discrete(4)
         self.n_steps = 0
         self.reward = 0
         self.prev_reward = -1
-        cfg = GameConfig(width = 800,
-                    height = 600,
+        cfg = GameConfig(width = width,
+                    height = height,
                     player = Snake,
                     food = Food,
                     player_size = (20,20),
@@ -55,24 +58,20 @@ class SnakeClassicEnv(gym.Env):
         
         self.take_action(action)
         self.snake_game.on_loop()
-        self.snake_game.on_render(show=True)
+        self.snake_game.on_render(show=configs.SHOW)
         #observation
         #TODO figure out a faster way
         obs = self._observe()
-        
         
         #done
         done = self.snake_game.done
         
         if done :
-            self.reward -= 100
+            self.reward -= 10
         else:
-            if(self.prev_reward == self.reward):
-                self.reward -= 1
-            else:
-                self.reward += 10
+            if(not self.prev_reward == self.reward):
+                self.reward += 100
         self.prev_reward=self.reward
-
         #info
         info = {}
         return (obs,self.reward,done,info)

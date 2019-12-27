@@ -8,17 +8,18 @@ from dopamine.discrete_domains.run_experiment import Runner
 from dopamine.discrete_domains.gym_lib import create_gym_environment
 from dopamine.agents.rainbow import rainbow_agent
 from models import SimpleDQNNetwork,RainbowNetwork
+import configs
 
 
+STACK_SIZE = configs.STACK_SIZE
+GAMMA = configs.GAMMA
+REPLAY_CAPACITY = configs.REPLAY_CAPACITY
+BATCH_SIZE = configs.BATCH_SIZE
 
-STACK_SIZE = 4
-GAMMA = 0.9
-REPLAY_CAPACITY = 10000
-BATCH_SIZE = 32
+
 sess = tf.Session()
 
-#TODO 
-# * use prioritized buffer
+
 
 class SnakeDQNAgent(dqn_agent.DQNAgent):
     def __init__(self,*args,**kwargs):
@@ -37,7 +38,7 @@ class SnakeDQNAgent(dqn_agent.DQNAgent):
             replay_capacity = REPLAY_CAPACITY,
             batch_size = BATCH_SIZE,
             observation_shape=self.observation_shape,
-            stack_size=self.stack_size,
+            stack_size=STACK_SIZE,
             use_staging=use_staging,
             update_horizon=self.update_horizon,
             gamma=self.gamma,
@@ -61,7 +62,7 @@ class SnakeRainbowAgent(rainbow_agent.RainbowAgent):
             replay_capacity = REPLAY_CAPACITY,
             batch_size = BATCH_SIZE,
             observation_shape=self.observation_shape,
-            stack_size=self.stack_size,
+            stack_size=STACK_SIZE,
             use_staging=use_staging,
             update_horizon=self.update_horizon,
             gamma=self.gamma,
