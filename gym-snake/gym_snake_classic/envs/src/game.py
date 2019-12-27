@@ -81,11 +81,8 @@ class Game:
             head = pygame.Rect(self.player.position,(1,1))
             _pos = pygame.Rect(_pos,(1,1))
 
-           
-
             if( head.colliderect(_pos) ):
-                print(f"Game Over!!\nScore : {self.score}")
-                exit(0)
+                self._running = False
 
     def on_render(self):
         self.display.fill((255,255,255))

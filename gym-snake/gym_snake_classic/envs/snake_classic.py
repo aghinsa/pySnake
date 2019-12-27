@@ -12,6 +12,7 @@ from gym_snake_classic.envs.src.assets import Snake,Food
 
 class SnakeClassicEnv(gym.Env):
     metadata = {'render.modes':['human']}
+    reward_range = (-np.inf, np.inf)
 
     ACTION_LOOKUP = {
             0 : 'UP',
@@ -20,7 +21,7 @@ class SnakeClassicEnv(gym.Env):
             3 : 'RIGHT'
     }
 
-    def __init__(self):
+    def __init__(self,rgb=True):
         self.temp_filename='_temp_window.jpg'
         width,height = (800,600)
         self.action_space = spaces.Discrete(4)
@@ -32,9 +33,9 @@ class SnakeClassicEnv(gym.Env):
                     player_size = (20,20),
                     food_size = (20,20),
                     render = True,
-                    rgb = False
+                    rgb = rgb
                     )
-        if cfg.rgb:
+        if rgb:
             self.observation_space = spaces.Box(low=0, high=255, shape=
                     (height, width, 3))
         else:
@@ -45,17 +46,14 @@ class SnakeClassicEnv(gym.Env):
         self.snake_game = Game(cfg)
         self.snake_game.on_init()
     
-    def __del__(self):
-        self.snake_game.on_cleanup()
-        try:
-            os.remove(self.temp_filename)
-        except FileNotFoundError:
-            pass
+    @property
+    def env(self):
+        return self
         
     def _observe(self):
         pygame.image.save(self.snake_game.window,self.temp_filename)
         obs = Image.open(self.temp_filename)
-        if not self.config.rgb:
+        if not self.snake_game.config.rgb:
             obs=obs.convert('LA')
         # HACK to pass three channels to memory buffer in dopamine
         # TODO figure out how to pass rgb directly
@@ -81,6 +79,7 @@ class SnakeClassicEnv(gym.Env):
         info = {}
         return (obs,reward,done,info)
 
+
     def take_action(self, action):
         act = self.ACTION_LOOKUP[action]
         self.snake_game.take_action(act)
@@ -93,7 +92,7 @@ class SnakeClassicEnv(gym.Env):
         return self._observe()
         
 
-    def render(self,mode='human',):
+    def render(self,mode='human'):
         self.snake_game.on_render()
     
         

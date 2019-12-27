@@ -2,26 +2,49 @@ import gym
 import numpy as np
 import tensorflow as tf
 
-from dopamine.replay_memory import prioritized_replay_buffer
+from dopamine.replay_memory import prioritized_replay_buffer,circular_replay_buffer
 from dopamine.agents.dqn import dqn_agent
 from dopamine.discrete_domains.run_experiment import Runner
+from dopamine.discrete_domains.gym_lib import create_gym_environment
 from models import SimpleDQNNetwork
-
-
-class SnakeDQNAgent(dqn_agent.DQNAgent):
-    def __init__(self,memory,*args,**kwargs):
-        self.memory=memory
-        super().__init__(*args,**kwargs)
-
-    def _build_replay_buffer(self,*args,**kwargs):
-        return self.memory
-
 
 
 STACK_SIZE = 4
 GAMMA = 0.9
+REPLAY_CAPACITY = 10000
+BATCH_SIZE = 32
 
-env = gym.make("gym_snake_classic:SnakeClassic-v0")
+class SnakeDQNAgent(dqn_agent.DQNAgent):
+    def __init__(self,*args,**kwargs):
+        super().__init__(*args,**kwargs)
+
+    def _build_replay_buffer(self,use_staging):
+
+        """Creates the replay buffer used by the agent.
+        Args:
+        use_staging: bool, if True, uses a staging area to prefetch data for
+            faster training.
+        Returns:
+        A WrapperReplayBuffer object.
+        """
+        return circular_replay_buffer.WrappedReplayBuffer(
+            replay_capacity = REPLAY_CAPACITY,
+            batch_size = BATCH_SIZE,
+            observation_shape=self.observation_shape,
+            stack_size=self.stack_size,
+            use_staging=use_staging,
+            update_horizon=self.update_horizon,
+            gamma=self.gamma,
+            observation_dtype=self.observation_dtype.as_numpy_dtype
+        )
+
+
+
+
+env = create_gym_environment(
+                        environment_name="gym_snake_classic:SnakeClassic",
+                        version = 'v0'
+                            )
 memory_buffer = prioritized_replay_buffer.WrappedPrioritizedReplayBuffer(
     observation_shape=env.observation_space.shape,
     stack_size=STACK_SIZE,
@@ -36,7 +59,6 @@ sess = tf.Session()
 
 def _agent_fn(sess,env,summary_writer):
     AGENT = SnakeDQNAgent(
-    memory=memory_buffer,
     sess=sess,
     num_actions = env.action_space.n,
     observation_shape = env.observation_space.shape,
@@ -63,6 +85,7 @@ runner = Runner(
             evaluation_steps=1250,
             max_steps_per_episode=10000
                )
+runner.run_experiment()
 
 
 

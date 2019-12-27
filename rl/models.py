@@ -5,25 +5,6 @@ from tensorflow.contrib import slim as contrib_slim
 
 DQNNetworkType = namedtuple('dqn_network', ['q_values'])
 
-def simple_dqn_network(num_actions, network_type, state,):
-    """The convolutional network used to compute the agent's Q-values.
-    Args:
-    num_actions: int, number of actions.
-    network_type: namedtuple, collection of expected values to return.
-    state: `tf.Tensor`, contains the agent's current state.
-    Returns:
-    net: _network_type object containing the tensors output by the network.
-    """
-    
-    net = tf.cast(state, tf.float32)
-    net = tf.div(net, 255.)
-    net = contrib_slim.conv2d(net, 32, [8, 8], stride=4)
-    net = contrib_slim.conv2d(net, 64, [4, 4], stride=2)
-    net = contrib_slim.conv2d(net, 64, [3, 3], stride=1)
-    net = contrib_slim.flatten(net)
-    net = contrib_slim.fully_connected(net, 512)
-    q_values = contrib_slim.fully_connected(net, num_actions, activation_fn=None)
-    return network_type(q_values)
 
 class SimpleDQNNetwork(tf.keras.Model):
 
@@ -60,9 +41,36 @@ class SimpleDQNNetwork(tf.keras.Model):
         collections.namedtuple, output ops (graph mode) or output tensors (eager).
         
         """
-        
+        #TODO Make rgb proper
+        #HACK pass 
+        def infer_shape(x):
+            x = tf.convert_to_tensor(x)
+
+            # If unknown rank, return dynamic shape
+            if x.shape.dims is None:
+                return tf.shape(x)
+
+            static_shape = x.shape.as_list()
+            dynamic_shape = tf.shape(x)
+
+            ret = []
+            for i in range(len(static_shape)):
+                dim = static_shape[i]
+                if dim is None:
+                    dim = dynamic_shape[i]
+                ret.append(dim)
+
+            return ret
+
+        def merge_last_two_dims(tensor):
+            shape = infer_shape(tensor)
+            shape[-2] *= shape[-1]
+            shape.pop(-1)
+            return tf.reshape(tensor, shape)
+
         x = tf.cast(state, tf.float32)
         x = tf.div(x, 255.)
+        x = merge_last_two_dims(x)
         x = self.conv1(x)
         x = self.conv2(x)
         x = self.conv3(x)
