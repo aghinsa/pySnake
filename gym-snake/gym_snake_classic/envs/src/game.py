@@ -15,7 +15,8 @@ class GameConfig:
     player_size : Tuple[int]
     food_size : Tuple[int]
     render : bool = True
-
+    rgb : bool = True
+    
 class Game:
     def __init__(self,config:GameConfig)->None:
         self.config = config

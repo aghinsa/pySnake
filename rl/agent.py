@@ -4,7 +4,7 @@ import tensorflow as tf
 
 from dopamine.replay_memory import prioritized_replay_buffer
 from dopamine.agents.dqn import dqn_agent
-from dopamine.discrete_domains.run_experiment import TrainRunner
+from dopamine.discrete_domains.run_experiment import Runner
 from models import SimpleDQNNetwork
 
 
@@ -32,7 +32,10 @@ memory_buffer = prioritized_replay_buffer.WrappedPrioritizedReplayBuffer(
 print(env.action_space.n)
 sess = tf.Session()
 
-AGENT = SnakeDQNAgent(
+
+
+def _agent_fn(sess,env,summary_writer):
+    AGENT = SnakeDQNAgent(
     memory=memory_buffer,
     sess=sess,
     num_actions = env.action_space.n,
@@ -40,25 +43,25 @@ AGENT = SnakeDQNAgent(
     stack_size = STACK_SIZE,
     network = SimpleDQNNetwork,
     gamma=GAMMA,
-    tf_device = '/gpu:0' 
+    tf_device = '/gpu:0' ,
+    summary_writer=summary_writer
     )
-
-def _agent_fn(*args):
     return AGENT
+
 def _env_fn(*args):
     return env
 
-runner = TrainRunner(
+runner = Runner(
             base_dir = '_tmp_agent_dir/',
             create_agent_fn = _agent_fn,
             create_environment_fn= _env_fn,
             checkpoint_file_prefix='ckpt',
             logging_file_prefix='log',
-            log_every_n=1,
+            log_every_n=10,
             num_iterations=200,
-            training_steps=250000,
-            evaluation_steps=125000,
-            max_steps_per_episode=27000
+            training_steps=2500,
+            evaluation_steps=1250,
+            max_steps_per_episode=10000
                )
 
 

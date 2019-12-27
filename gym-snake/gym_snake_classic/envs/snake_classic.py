@@ -1,6 +1,7 @@
 import os
 import gym
 import pygame
+from PIL import Image
 import numpy as np
 from matplotlib.image import imread
 from gym import error, spaces, utils
@@ -20,30 +21,46 @@ class SnakeClassicEnv(gym.Env):
     }
 
     def __init__(self):
+        self.temp_filename='_temp_window.jpg'
         width,height = (800,600)
         self.action_space = spaces.Discrete(4)
-        self.observation_space = spaces.Box(low=0, high=255, shape=
-                    (height, width, 3))
+        
         cfg = GameConfig(width = 800,
                     height = 600,
                     player = Snake,
                     food = Food,
                     player_size = (20,20),
                     food_size = (20,20),
-                    render = True
+                    render = True,
+                    rgb = False
                     )
+        if cfg.rgb:
+            self.observation_space = spaces.Box(low=0, high=255, shape=
+                    (height, width, 3))
+        else:
+            self.observation_space = spaces.Box(low=0, high=255, shape=
+                    (height, width))
+
 
         self.snake_game = Game(cfg)
         self.snake_game.on_init()
     
     def __del__(self):
         self.snake_game.on_cleanup()
-        os.remove(self.temp_filename)
+        try:
+            os.remove(self.temp_filename)
+        except FileNotFoundError:
+            pass
         
     def _observe(self):
-        self.temp_filename='_temp_window.jpg'
         pygame.image.save(self.snake_game.window,self.temp_filename)
-        obs = imread(self.temp_filename)
+        obs = Image.open(self.temp_filename)
+        if not self.config.rgb:
+            obs=obs.convert('LA')
+        # HACK to pass three channels to memory buffer in dopamine
+        # TODO figure out how to pass rgb directly
+        
+
         return obs
 
     def step(self, action):
@@ -73,7 +90,7 @@ class SnakeClassicEnv(gym.Env):
         
     def reset(self):
         self.snake_game.reset()
-        return self._observe
+        return self._observe()
         
 
     def render(self,mode='human',):
