@@ -55,7 +55,7 @@ class SnakeClassicEnv(gym.Env):
         
         self.take_action(action)
         self.snake_game.on_loop()
-        self.snake_game.on_render(show=False)
+        self.snake_game.on_render(show=True)
         #observation
         #TODO figure out a faster way
         obs = self._observe()
@@ -80,7 +80,6 @@ class SnakeClassicEnv(gym.Env):
 
     def take_action(self, action):
         act = self.ACTION_LOOKUP[action]
-        # print(f"action : {act}")
         self.snake_game.take_action(act)
     
     def get_reward(self):

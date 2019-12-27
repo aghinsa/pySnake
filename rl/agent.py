@@ -6,7 +6,9 @@ from dopamine.replay_memory import prioritized_replay_buffer,circular_replay_buf
 from dopamine.agents.dqn import dqn_agent
 from dopamine.discrete_domains.run_experiment import Runner
 from dopamine.discrete_domains.gym_lib import create_gym_environment
-from models import SimpleDQNNetwork
+from dopamine.agents.rainbow import rainbow_agent
+from models import SimpleDQNNetwork,RainbowNetwork
+
 
 
 STACK_SIZE = 4
@@ -15,7 +17,8 @@ REPLAY_CAPACITY = 10000
 BATCH_SIZE = 32
 sess = tf.Session()
 
-
+#TODO 
+# * use prioritized buffer
 
 class SnakeDQNAgent(dqn_agent.DQNAgent):
     def __init__(self,*args,**kwargs):
@@ -41,33 +44,74 @@ class SnakeDQNAgent(dqn_agent.DQNAgent):
             observation_dtype=self.observation_dtype.as_numpy_dtype
         )
 
+class SnakeRainbowAgent(rainbow_agent.RainbowAgent):
+    def __init__(self,*args,**kwargs):
+        super().__init__(*args,**kwargs)
+
+    def _build_replay_buffer(self,use_staging):
+
+        """Creates the replay buffer used by the agent.
+        Args:
+        use_staging: bool, if True, uses a staging area to prefetch data for
+            faster training.
+        Returns:
+        A WrapperReplayBuffer object.
+        """
+        return prioritized_replay_buffer.WrappedPrioritizedReplayBuffer(
+            replay_capacity = REPLAY_CAPACITY,
+            batch_size = BATCH_SIZE,
+            observation_shape=self.observation_shape,
+            stack_size=self.stack_size,
+            use_staging=use_staging,
+            update_horizon=self.update_horizon,
+            gamma=self.gamma,
+            observation_dtype=self.observation_dtype.as_numpy_dtype
+        )
+
+
 
 env = create_gym_environment(
                         environment_name="gym_snake_classic:SnakeClassic",
                         version = 'v0'
                             )
-memory_buffer = prioritized_replay_buffer.WrappedPrioritizedReplayBuffer(
-    observation_shape=env.observation_space.shape,
-    stack_size=STACK_SIZE,
-    replay_capacity=100,
-    batch_size=32,
-    gamma=GAMMA,
-    )
+
 
 
 
 
 
 def _agent_fn(sess,env,summary_writer):
-    AGENT = SnakeDQNAgent(
-    sess=sess,
-    num_actions = env.action_space.n,
-    observation_shape = env.observation_space.shape,
-    stack_size = STACK_SIZE,
-    network = SimpleDQNNetwork,
-    gamma=GAMMA,
-    tf_device = '/gpu:0' ,
-    summary_writer=summary_writer
+    # AGENT = SnakeDQNAgent(
+    # sess=sess,
+    # num_actions = env.action_space.n,
+    # observation_shape = env.observation_space.shape,
+    # stack_size = STACK_SIZE,
+    # network = SimpleDQNNetwork,
+    # gamma=GAMMA,
+    # tf_device = '/gpu:0' ,
+    # summary_writer=summary_writer
+    # )
+
+    AGENT = SnakeRainbowAgent(
+        sess=sess,
+        num_actions=env.action_space.n,
+        observation_shape=env.observation_space.shape,
+        stack_size=STACK_SIZE,
+        network=RainbowNetwork,
+        num_atoms=51,
+        vmax=10.,
+        gamma=0.99,
+        update_horizon=1,
+        min_replay_history=20000,
+        update_period=4,
+        target_update_period=8000,
+        epsilon_fn=dqn_agent.linearly_decaying_epsilon,
+        epsilon_train=0.01,
+        epsilon_eval=0.001,
+        epsilon_decay_period=250000,
+        replay_scheme='prioritized',
+        tf_device='/gpu:*',
+        summary_writer=summary_writer,
     )
     return AGENT
 
