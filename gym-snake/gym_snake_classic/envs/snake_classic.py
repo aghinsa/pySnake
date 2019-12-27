@@ -48,17 +48,17 @@ class SnakeClassicEnv(gym.Env):
         
     def _observe(self):
         pygame.image.save(self.snake_game.window,self.temp_filename)
-        obs = Image.open(self.temp_filename)
+        obs = imread(self.temp_filename)
         return obs
 
     def step(self, action):
         
         self.take_action(action)
         self.snake_game.on_loop()
+        self.snake_game.on_render(show=False)
         #observation
         #TODO figure out a faster way
         obs = self._observe()
-        
         
         
         #done

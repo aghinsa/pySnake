@@ -13,6 +13,9 @@ STACK_SIZE = 4
 GAMMA = 0.9
 REPLAY_CAPACITY = 10000
 BATCH_SIZE = 32
+sess = tf.Session()
+
+
 
 class SnakeDQNAgent(dqn_agent.DQNAgent):
     def __init__(self,*args,**kwargs):
@@ -39,8 +42,6 @@ class SnakeDQNAgent(dqn_agent.DQNAgent):
         )
 
 
-
-
 env = create_gym_environment(
                         environment_name="gym_snake_classic:SnakeClassic",
                         version = 'v0'
@@ -52,8 +53,8 @@ memory_buffer = prioritized_replay_buffer.WrappedPrioritizedReplayBuffer(
     batch_size=32,
     gamma=GAMMA,
     )
-print(env.action_space.n)
-sess = tf.Session()
+
+
 
 
 
@@ -80,11 +81,13 @@ runner = Runner(
             checkpoint_file_prefix='ckpt',
             logging_file_prefix='log',
             log_every_n=10,
-            num_iterations=200,
-            training_steps=2500,
-            evaluation_steps=1250,
+            num_iterations=2000,
+            training_steps=25000,
+            evaluation_steps=12500,
             max_steps_per_episode=10000
                )
+
+
 runner.run_experiment()
 
 

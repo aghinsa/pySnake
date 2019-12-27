@@ -83,11 +83,12 @@ class Game:
             if( head.colliderect(_pos) ):
                 self._running = False
 
-    def on_render(self):
+    def on_render(self,show=False):
         self.display.fill((255,255,255))
         self.player.draw(self.display,self.config.player_size)
         self.food.draw(self.display,self.config.food_size)
-        pygame.display.flip()
+        if show:
+            pygame.display.flip()
         
 
     def on_cleanup(self):
