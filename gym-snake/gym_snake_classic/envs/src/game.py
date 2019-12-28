@@ -84,8 +84,9 @@ class Game:
             _pos = pygame.Rect(_pos,(1,1))
 
             if( head.colliderect(_pos) ):
+                # Dont call reset here,its called in env
                 self._running = False
-                self.reset()
+                
 
     def on_render(self,show=True):
         self.display.fill((255,255,255))

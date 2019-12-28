@@ -30,7 +30,7 @@ class SnakeClassicEnv(gym.Env):
 
     def __init__(self):
         self.temp_filename='_temp_window.jpg'
-        width,height = (400,300)
+        width,height = (800,600)
         self.action_space = spaces.Discrete(4)
         self.n_steps = 0
         self.reward = 0
@@ -73,14 +73,17 @@ class SnakeClassicEnv(gym.Env):
         
         if done :
             self.reward -= 10
+            reward = self.reward #reset changes reward
             self.reset()
         else:
             if(not self.prev_reward == self.reward):
                 self.reward += 100
-        self.prev_reward=self.reward
+            reward = self.reward
+            
+        self.prev_reward=reward
         #info
         info = {}
-        return (obs,self.reward,done,info)
+        return (obs,reward,done,info)
 
 
     def take_action(self, action):
