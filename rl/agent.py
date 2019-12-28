@@ -105,7 +105,7 @@ def _agent_fn(sess,env,summary_writer):
         update_horizon=1,
         min_replay_history=configs.MIN_REPLAY_HISTORY,
         update_period=4,
-        target_update_period=8000,
+        target_update_period=configs.TARGET_UPDATE_PERIOD,
         epsilon_fn=dqn_agent.linearly_decaying_epsilon,
         epsilon_train=0.01,
         epsilon_eval=0.001,
@@ -113,6 +113,7 @@ def _agent_fn(sess,env,summary_writer):
         replay_scheme='prioritized',
         tf_device='/gpu:*',
         summary_writer=summary_writer,
+        summary_writing_frequency = config.SUMMARY_WRITING_FREQUENCY
     )
     return AGENT
 
@@ -120,7 +121,7 @@ def _env_fn(*args):
     return env
 
 runner = Runner(
-            base_dir = '_tmp_agent_dir/',
+            base_dir = configs.BASE_DIR,
             create_agent_fn = _agent_fn,
             create_environment_fn= _env_fn,
             checkpoint_file_prefix='ckpt',
