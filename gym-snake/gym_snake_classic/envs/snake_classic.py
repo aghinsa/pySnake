@@ -14,6 +14,10 @@ from gym_snake_classic.envs.src.game import Game,GameConfig
 
 
 class SnakeClassicEnv(gym.Env):
+    """
+    Gym Environment for classic snake game
+    """
+
     metadata = {'render.modes':['human']}
     reward_range = (-np.inf, np.inf)
 
@@ -59,6 +63,7 @@ class SnakeClassicEnv(gym.Env):
         self.take_action(action)
         self.snake_game.on_loop()
         self.snake_game.on_render(show=configs.SHOW)
+        
         #observation
         #TODO figure out a faster way
         obs = self._observe()
@@ -68,6 +73,7 @@ class SnakeClassicEnv(gym.Env):
         
         if done :
             self.reward -= 10
+            self.reset()
         else:
             if(not self.prev_reward == self.reward):
                 self.reward += 100
@@ -86,7 +92,11 @@ class SnakeClassicEnv(gym.Env):
         
     def reset(self):
         self.n_steps=0
+        self.reward=0
         self.snake_game.reset()
+        self.snake_game.on_loop()
+        self.snake_game.on_render(show=configs.SHOW)
+
         return self._observe()
         
 

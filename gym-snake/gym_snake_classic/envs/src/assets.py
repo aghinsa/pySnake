@@ -16,12 +16,13 @@ class Snake:
         self.reset()
 
     def reset(self):
+        self.direction=0
         self.length=self.init_length
         self.x=[]
         self.y=[]
         for _ in range(self.length):
-            self.x.append(0)
-            self.y.append(0)
+            self.x.append(self.window_size[0]/2)
+            self.y.append(self.window_size[1]/2)
 
 
     def _update(self):

@@ -103,7 +103,7 @@ def _agent_fn(sess,env,summary_writer):
         vmax=10.,
         gamma=0.99,
         update_horizon=1,
-        min_replay_history=20000,
+        min_replay_history=1000,
         update_period=4,
         target_update_period=8000,
         epsilon_fn=dqn_agent.linearly_decaying_epsilon,
