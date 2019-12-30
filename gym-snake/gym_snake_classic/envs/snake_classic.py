@@ -7,10 +7,15 @@ import numpy as np
 
 from gym import spaces
 from gym.utils import seeding
-from matplotlib.image import imread
+from PIL import Image
 from gym_snake_classic.envs.src.assets import Snake,Food
 from gym_snake_classic.envs.src.game import Game,GameConfig
 
+WIDTH = 400
+HEIGHT = 400
+
+OBS_WIDTH=256
+OBS_HEIGHT=256
 
 
 class SnakeClassicEnv(gym.Env):
@@ -30,11 +35,10 @@ class SnakeClassicEnv(gym.Env):
 
     def __init__(self):
         self.temp_filename='_temp_window.jpg'
-        width,height = (800,600)
+        width,height = (WIDTH,HEIGHT)
         self.action_space = spaces.Discrete(4)
         self.n_steps = 0
         self.reward = 0
-        self.prev_reward = -1
         cfg = GameConfig(width = width,
                     height = height,
                     player = Snake,
@@ -44,10 +48,11 @@ class SnakeClassicEnv(gym.Env):
                     )
 
         self.observation_space = spaces.Box(low=0, high=255, shape=
-                    (height, width, 3))
+                    (OBS_HEIGHT, OBS_WIDTH, 3))
 
         self.snake_game = Game(cfg)
         self.snake_game.on_init()
+        self.prev_length = self.snake_game.player.length
 
     @property
     def env(self):
@@ -55,11 +60,13 @@ class SnakeClassicEnv(gym.Env):
 
     def _observe(self):
         pygame.image.save(self.snake_game.window,self.temp_filename)
-        obs = imread(self.temp_filename)
+        obs = Image.open(self.temp_filename)
+        obs=obs.resize((OBS_HEIGHT,OBS_WIDTH),Image.BILINEAR)
+        obs=np.array(obs)
         return obs
 
     def step(self, action):
-
+        
         self.take_action(action)
         self.snake_game.on_loop()
         self.snake_game.on_render(show=configs.SHOW)
@@ -76,11 +83,11 @@ class SnakeClassicEnv(gym.Env):
             reward = self.reward #reset changes reward
             self.reset()
         else:
-            if(not self.prev_reward == self.reward):
-                self.reward += 10
+            if(not self.prev_length == self.snake_game.player.length):
+                self.reward += 1000
             reward = self.reward
 
-        self.prev_reward=reward
+        self.prev_length=self.snake_game.player.length
         #info
         info = {}
         return (obs,reward,done,info)

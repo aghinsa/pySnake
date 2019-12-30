@@ -31,7 +31,7 @@ class SimpleDQNNetwork(tf.keras.Model):
         self.conv3 = tf.keras.layers.Conv2D(64, [3, 3], strides=1, padding='same',
                                             activation=activation_fn, name='Conv')
         self.flatten = tf.keras.layers.Flatten()
-        self.dense1 = tf.keras.layers.Dense(512, activation=activation_fn,
+        self.dense1 = tf.keras.layers.Dense(256, activation=activation_fn,
                                             name='fully_connected')
         self.dense2 = tf.keras.layers.Dense(num_actions, name='fully_connected')
 
@@ -55,6 +55,7 @@ class SimpleDQNNetwork(tf.keras.Model):
         x = self.conv3(x)
         x = self.flatten(x)
         x = self.dense1(x)
+        # x = self.dense1(x)
 
         return DQNNetworkType(self.dense2(x))
 

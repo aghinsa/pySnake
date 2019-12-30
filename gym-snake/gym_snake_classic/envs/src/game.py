@@ -6,6 +6,8 @@ from dataclasses import dataclass
 from typing import Any,Tuple
 from random import randint
 
+MAX_RUN = 5000
+
 @dataclass
 class GameConfig:
     height : int 
@@ -48,9 +50,16 @@ class Game:
         step = self.food.step
         nx=randint(2,10)*step
         ny=randint(2,10)*step
-        while((nx,ny) in zip(self.player.x,self.player.y)):
+        count = 0
+        while ( ((nx,ny) in zip(self.player.x,self.player.y)) ) and (count<MAX_RUN):
+            count+=1
             nx=randint(2,10)*step
             ny=randint(2,10)*step
+        if count>=MAX_RUN:
+            # Hack so that env pushes towards this
+            self.player.length+=1000
+            print("Game Completed!!!")
+            self._running=False
         self.food.position=(nx,ny)
 
     @property

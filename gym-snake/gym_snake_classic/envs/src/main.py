@@ -2,8 +2,8 @@ from game import Game,GameConfig
 from assets import Snake,Food
 
 
-cfg = GameConfig(width = 800,
-                    height = 600,
+cfg = GameConfig(width = 400,
+                    height = 400,
                     player = Snake,
                     food = Food,
                     player_size = (20,20),
