@@ -1,4 +1,7 @@
 import pygame
+import configs
+
+BOUNDED = configs.BOUNDED
 class Snake:
     x = []
     y = []
@@ -6,8 +9,6 @@ class Snake:
     direction = 0
     length = 3
 
-    update_count = 0
-    update_count_max = 1
 
     def __init__(self,length,window_size):
         self.length = length
@@ -44,9 +45,10 @@ class Snake:
             self.y[0] -= self.step
         elif self.direction == 3:
             self.y[0] += self.step
-        
-        self.x[0] %= self.window_size[0]-20
-        self.y[0] %= self.window_size[1]-20
+
+        if not BOUNDED:
+            self.x[0] %= self.window_size[0]-20
+            self.y[0] %= self.window_size[1]-20
 
 
     def moveRight(self):
