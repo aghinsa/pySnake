@@ -15,3 +15,4 @@ pip install gym-snake
 env = gym.make("gym_snake_classic:SnakeClassic-v0")
 ``` 
 
+* Size need to be change in params plotter utils

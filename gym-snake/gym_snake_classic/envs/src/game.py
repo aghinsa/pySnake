@@ -48,13 +48,13 @@ class Game:
     
     def spawn_food(self):
         step = self.food.step
-        nx=randint(2,10)*step
-        ny=randint(2,10)*step
+        nx=(randint(2,10)*step)%(self.window_size[0]-10)
+        ny=(randint(2,10)*step)%(self.window_size[1]-10)
         count = 0
         while ( ((nx,ny) in zip(self.player.x,self.player.y)) ) and (count<MAX_RUN):
             count+=1
-            nx=randint(2,10)*step
-            ny=randint(2,10)*step
+            nx=(randint(2,10)*step)%(self.window_size[0]-10)
+            ny=(randint(2,10)*step)%(self.window_size[1]-10)
         if count>=MAX_RUN:
             # Hack so that env pushes towards this
             self.player.length+=1000

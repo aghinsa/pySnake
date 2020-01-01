@@ -36,8 +36,8 @@ class Snake:
         elif self.direction == 3:
             self.y[0] += self.step
         
-        self.x[0] %= self.window_size[0]
-        self.y[0] %= self.window_size[1]
+        self.x[0] %= self.window_size[0]-20
+        self.y[0] %= self.window_size[1]-256
 
 
     def moveRight(self):
@@ -79,16 +79,17 @@ class Food:
     x,y=(0,0)
     step=44
 
-    def __init__(self,x,y):
-        self.x = x*self.step
-        self.y = y*self.step
+    def __init__(self,x,y,window_size):
+        self.window_size=window_size
+        self.x = (x*self.step)%window_size[0]
+        self.y = (y*self.step)%window_size[1]
     @property
     def position(self):
         return (self.x,self.y)
     @position.setter
     def position(self,value):
-        self.x=value[0]
-        self.y=value[1]
+        self.x=(value[0])%(window_size[0]-5)
+        self.y=(value[1])%(window_size[1]-5)
 
     def draw(self,surface,food_size):
         pygame.draw.rect(surface,(255,153,51), 

@@ -3,7 +3,7 @@ import gym
 import configs
 import pygame
 import numpy as np
-
+import inspect
 
 from gym import spaces
 from gym.utils import seeding
@@ -58,16 +58,17 @@ class SnakeClassicEnv(gym.Env):
     def env(self):
         return self
 
-    def _observe(self):
+    def _observe(self,resize=True):
         pygame.image.save(self.snake_game.window,self.temp_filename)
         obs = Image.open(self.temp_filename)
-        obs=obs.resize((OBS_HEIGHT,OBS_WIDTH),Image.BILINEAR)
+        if resize:
+            obs=obs.resize((OBS_HEIGHT,OBS_WIDTH),Image.BILINEAR)
         obs=np.array(obs)
         return obs
 
     def step(self, action):
-        
         self.take_action(action)
+        self.reward-=1
         self.snake_game.on_loop()
         self.snake_game.on_render(show=configs.SHOW)
 
@@ -79,7 +80,7 @@ class SnakeClassicEnv(gym.Env):
         done = self.snake_game.done
 
         if done :
-            self.reward -= 100
+            self.reward -= 1000
             reward = self.reward #reset changes reward
             self.reset()
         else:
@@ -111,4 +112,7 @@ class SnakeClassicEnv(gym.Env):
 
 
     def render(self,mode='human'):
+        if mode=='rgb_array':
+            return self._observe(resize=False)
         self.snake_game.on_render()
+

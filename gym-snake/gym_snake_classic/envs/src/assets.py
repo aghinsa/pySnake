@@ -45,8 +45,8 @@ class Snake:
         elif self.direction == 3:
             self.y[0] += self.step
         
-        self.x[0] %= self.window_size[0]
-        self.y[0] %= self.window_size[1]
+        self.x[0] %= self.window_size[0]-20
+        self.y[0] %= self.window_size[1]-20
 
 
     def moveRight(self):

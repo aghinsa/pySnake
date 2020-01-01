@@ -22,7 +22,7 @@ class Game:
         self.window_size = (self.config.width,self.config.height)
         self.player = self.config.player(5,self.window_size)
         self._running = True
-        self.food = self.config.food(5,5) # setting init position
+        self.food = self.config.food(5,5,window_size) # setting init position
 
     def on_init(self):
         pygame.init()
@@ -33,20 +33,20 @@ class Game:
         pygame.display.set_caption('Snake')
         self._running=True
         self.snake_body = pygame.Surface( self.config.player_size )
-        
+
         self.food_img = pygame.Surface( self.config.food_size )
 
     def on_event(self,event):
         if event.type == QUIT:
             self._running=False
-    
+
     def spawn_food(self):
         step = self.food.step
-        nx=randint(2,10)*step
-        ny=randint(2,10)*step
+        nx=(randint(2,10)*step)%self.window_size[0]
+        ny=(randint(2,10)*step)%self.window_size[1]
         while((nx,ny) in zip(self.player.x,self.player.y)):
-            nx=randint(2,10)*step
-            ny=randint(2,10)*step
+            nx=(randint(2,10)*step)%self.window_size[0]
+            ny=(randint(2,10)*step)%self.window_size[1]
         self.food.position=(nx,ny)
 
 
@@ -56,8 +56,7 @@ class Game:
         # check collison with food
         head = self.snake_body.get_rect(topleft=self.player.position)
         food_pos = self.food_img.get_rect(topleft=self.food.position)
-        
-        
+
         if( head.colliderect(food_pos) ):
             self.player.length = self.player.length+1
             self.player.eat(food_pos)

@@ -7,9 +7,12 @@ from dopamine.replay_memory import prioritized_replay_buffer, circular_replay_bu
 from dopamine.agents.dqn import dqn_agent
 from dopamine.discrete_domains.run_experiment import Runner
 from dopamine.discrete_domains.gym_lib import create_gym_environment
+from dopamine.discrete_domains import atari_lib
 from dopamine.agents.rainbow import rainbow_agent
 from models import SimpleDQNNetwork, RainbowNetwork
+from utils import SnakeRunner
 
+from agents import SnakeRainbowAgent
 
 STACK_SIZE = configs.STACK_SIZE
 GAMMA = configs.GAMMA
@@ -18,56 +21,6 @@ BATCH_SIZE = configs.BATCH_SIZE
 
 
 sess = tf.Session()
-
-
-class SnakeDQNAgent(dqn_agent.DQNAgent):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-    def _build_replay_buffer(self, use_staging):
-
-        """Creates the replay buffer used by the agent.
-        Args:
-        use_staging: bool, if True, uses a staging area to prefetch data for
-            faster training.
-        Returns:
-        A WrapperReplayBuffer object.
-        """
-        return circular_replay_buffer.WrappedReplayBuffer(
-            replay_capacity=REPLAY_CAPACITY,
-            batch_size=BATCH_SIZE,
-            observation_shape=self.observation_shape,
-            stack_size=STACK_SIZE,
-            use_staging=use_staging,
-            update_horizon=self.update_horizon,
-            gamma=self.gamma,
-            observation_dtype=self.observation_dtype.as_numpy_dtype,
-        )
-
-
-class SnakeRainbowAgent(rainbow_agent.RainbowAgent):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-    def _build_replay_buffer(self, use_staging):
-
-        """Creates the replay buffer used by the agent.
-        Args:
-        use_staging: bool, if True, uses a staging area to prefetch data for
-            faster training.
-        Returns:
-        A WrapperReplayBuffer object.
-        """
-        return prioritized_replay_buffer.WrappedPrioritizedReplayBuffer(
-            replay_capacity=REPLAY_CAPACITY,
-            batch_size=BATCH_SIZE,
-            observation_shape=self.observation_shape,
-            stack_size=STACK_SIZE,
-            use_staging=use_staging,
-            update_horizon=self.update_horizon,
-            gamma=self.gamma,
-            observation_dtype=self.observation_dtype.as_numpy_dtype,
-        )
 
 
 env = create_gym_environment(
@@ -114,7 +67,7 @@ def _agent_fn(sess, env, summary_writer):
         epsilon_train=0.01,
         epsilon_eval=0.001,
         epsilon_decay_period=250000,
-        eval_mode=False , # True for training
+        eval_mode=configs.EVAL_MODE , # True for training
         replay_scheme="prioritized",
         tf_device="/gpu:*",
         summary_writer=summary_writer,
@@ -123,11 +76,12 @@ def _agent_fn(sess, env, summary_writer):
     return AGENT
 
 
+
 def _env_fn(*args):
     return env
 
 
-runner = Runner(
+runner = SnakeRunner(
     base_dir=configs.BASE_DIR,
     create_agent_fn=_agent_fn,
     create_environment_fn=_env_fn,
@@ -144,3 +98,5 @@ runner = Runner(
 if __name__ == "__main__":
     tf.logging.set_verbosity(tf.logging.INFO)
     runner.run_experiment()
+    # runner.visualize(record_path = configs.BASE_DIR+'visualize/',
+    #                 num_global_steps=500)
